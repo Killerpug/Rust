@@ -44,9 +44,9 @@ where T: Fn(u32) -> u32,
     fn value(&mut self, arg: u32) -> u32 {
         let previously_calculated= self.cache.entry(arg);  
         match previously_calculated {
-            Entry::Occupied(v) => *v.get(), //
+            Entry::Occupied(v) => *v.get(), //retrieve previous value and skip expensive_calculation
             _ =>{ 
-                let value = (self.calculation)(arg);        //call exppensive_closure
+                let value = (self.calculation)(arg);        //call expensive_closure
                 self.cache.insert(arg, value);              //insert new entry
                 value
             }
