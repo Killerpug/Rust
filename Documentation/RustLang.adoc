@@ -6,7 +6,7 @@ Author Name
 :toc: left
 :numbered:
 :imagesdir: images
-
+:source-language: Rust
 
 
 
@@ -81,133 +81,188 @@ $ cargo run --quiet -- "aimée" 	// a (U+0061) i (U+0069) m (U+006D) é (U+00E9)
 Rust is a statically typed language, which means that it must know the types of all variables at compile time.  The compiler can usually infer what type we want to use based on the value and how we use it. In cases when many types are possible, such as when converting a String to a numeric type using parse, we must add a type annotation. 
 
 #### Boolean type
-In Rust, Booleans are one byte in size. Boolean type is specified by bool keyword: let f: bool = false;
+In Rust, Booleans are [red]#one byte# in size. Boolean type is specified by bool keyword: `let f: bool = false;`
+
 ```
 E.g. let number = 3;
 if number { println!("number was three"); }	//Error: expected bool, found integer
 ```
-Rust will not automatically try to convert non-Boolean types to a Boolean, it must be explicit and provide a Boolean value for safety. Note that if does not require parenthesis. 
+Rust will [red]#not automatically# try to convert non-Boolean types to a Boolean, it must be explicit and provide a Boolean value for safety. Note that "if" does not require parenthesis. 
 
-2.1.1 Rust’s char type
-Char is always 4 bytes in size that uses codepoint<->UTF-8 (encoding method that uses 1-4 one-byte code units(Basically UTF-8 up to 4 bytes)) to represent Unicode characters(Unicode is a standard, which defines a map from characters to numbers, the so-called code points). Which means it can represent a lot more than just ASCII, like emojis with his 1,112,064 valid characters. However, in a char not always the 4 bytes have information. In UTF-8 encoding, the higher part indicates the #ofBytes needed to store the symbol ranging from 1 to 4 bytes:
-•	If a byte starts with 0 it means only one byte(128 different combinations) has information. For retrocompatibility, this characters represent the same 128 first characters as ASCII.
-•	If a byte starts with 110 it means we’ll use two bytes
-•	If a byte starts with 1110 it means we'll use three bytes
-•	If a byte starts with 11110 it means we'll use four bytes
-•	If a byte starts with 10, it means it's a continuation of a multi-byte character sequence.
-Code point <-> UTF-8 conversion
-First code point	Last code point	Byte 1	Byte 2	Byte 3	Byte 4
-U+0000	U+007F	0xxxxxxx	
-U+0080	U+07FF	110xxxxx	10xxxxxx	
-U+0800	U+FFFF	1110xxxx	10xxxxxx	10xxxxxx	
-U+10000	U+10FFFF	11110xxx	10xxxxxx	10xxxxxx	10xxxxxx
+#### Rust’s char type
+Char is [red]#always 4 bytes# in size that uses [blue]#codepoint<-->UTF-8# (encoding method that uses 1-4 one-byte code units(Basically UTF-8 up to 4 bytes)) to represent Unicode characters(Unicode is a standard, which defines a map from characters to numbers, the so-called code points). Which means it can represent a lot more than just ASCII, like emojis with his 1,112,064 valid characters. However, [underline]##in a char not always the 4 bytes have information##. In UTF-8 encoding, the higher part indicates the #ofBytes needed to store the symbol ranging from 1 to 4 bytes:  
 
-The following example encodes “é” by using 2 bytes(right align), leftover bits are filled with 0 (called padding).
- 
-F2.1.1.1 Encoding “é” in UTF-8 (? Represents a free bit for data)
+* If a byte starts with 0 it means [blue]#only one byte#(128 different combinations) has information. For retrocompatibility, this characters represent the same 128 first characters as ASCII.
+* If a byte starts with 110 it means we’ll use two bytes
+* If a byte starts with 1110 it means we'll use three bytes
+* If a byte starts with 11110 it means we'll use four bytes
+* If a byte starts with 10, it means it's a continuation of a multi-byte character sequence.
 
-2.1.2 Integer type
+
+.Code point <-> UTF-8 conversion
+[width="100%",options="header,footer"]
+|====================
+|First code point  |Last code point |Byte 1  |Byte 2|Byte 3|Byte 4
+|U+0000 |U+007F |0xxxxxxx ||| 
+|U+0080 |U+07FF |110xxxxx |10xxxxxx ||
+|U+0800 |U+FFFF |1110xxxx |10xxxxxx  |10xxxxxx |
+|U+10000 |U+10FFFF |11110xxx |10xxxxxx|10xxxxxx|10xxxxxx |10xxxxxx 
+|====================
+The following example encodes “é” by using 2 bytes(right align), leftover bits are filled with 0 (called padding).  
+
+.Encoding “é” in UTF-8 (? Represents a free bit for data)
+image::images/1_Encoding.png[]
+
+
+#### Integer type
 An integer is a number without a fractional component. It can be type annotated as follows:
+```
 let number = 13;		//implicit data type
 let number: i32 = 13;	//explicit data type
+```
 
-Integer Types
-Length	Signed	Unsigned
-8-bit	i8	u8
-16-bit	i16	u16
-32-bit	i32	u32
-64-bit	i64	u64
-128-bit	i128	u128
-Arch
-(architecture dependent)	isize	Usize
-Rust defaults integers to i32.
 
-Signed numbers are stored using two’s complement representation.
-Furthermore, you can use “_” as a visual separator
-Number literals	Example
-Decimal	98_222
-Hex	0xff
-Octal	0o77
-Binary	0b1111_0000
-Byte (u8 only)	b'A'
+.Integer types
+[width="50%",options="header,footer"]
+|====================
+|Length	| Signed| Unsigned
+| 8-bit | i8 |  u8
+| 16-bit | i16 |  u16
+| 32-bit | i32 |  u32
+| 64-bit | i64 |  u64
+| 128-bit | i128 |  u128
+| Arch (Architecture dependent)| isize |  usize
+3+| Rust defaults integers to i32  
+|
+|====================
 
+.Number literals
+[width="50%",options="header,footer"]
+|====================
+| Number literals | Example     
+| Decimal         | 98_222      
+| Hex             | 0xff        
+| Octal           | 0o77        
+| Binary          | 0b1111_0000 
+| Byte (u8 only)  | b'A'        
+|====================
+Signed numbers are stored using two’s complement representation. Furthermore, you can use “_” as a visual separator
+
+[NOTE]
+====
 Final note: Integer overflow
 - In debug mode, Rust includes checks for integer overflow that cause your program to panic at runtime if an overflow occurs.
 - In release mode, rust doesn’t include checks. So, if overflow occurs, Rust performs two’s complement wrapping(256 becomes 0 in a u8). Relying on integer overflow is an error, you should explicitly handle these types of situation with wrapping_* methods(this is a reason why c produces unknown behaviors).
-2.1.3 Float type
-f32(single precision) and f64(default, double precision) are used for numbers with decimal points. Floating-point numbers are represented according IEEE-754 standard.
-2.1.4 Arrays vs Vectors
-Arrays 
+====
+
+#### Float type
+f32(single precision) and f64(**default**, double precision) are used for numbers with decimal points. Floating-point numbers are represented according IEEE-754 standard.
+
+#### Arrays vs Vectors
+*Arrays* 
+
+Arrays are useful when you want your data allocated on the [green]#**stack**# rather than the heap or when you want to ensure you always have a [underline]#fixed# number of elements. E.g. 
+
+```
 let a: [i32; 5] = [1, 2, 3, 4, 5];		 //array with type i32 with 5 elements.
 let a = [3;5]			//array with 5 elements initialize with same value 3(due to “;”).
-Arrays re useful when you want your data allocated on the stack rather than the heap or when you want to ensure you always have a fixed number of elements. E.g. 
-An array isn’t as flexible as the vector type though. A vector is a similar collection type provided by the standard library, it can grow or shrink in size(stored on heap).
-Tuple
-A tuple is a general way of grouping together several values with a variety of types into one compound type. Tuples have a fixed length: once declared, they cannot grow or shrink in size.
-	E.g.  let tup: (i32, f64, u8) = (500, 6.4, 1);
+```
+
+An array isn’t as flexible as the vector type though. A *vector* is a similar collection type provided by the standard library, it can grow or shrink in size(stored on [green]#**heap**#).
+
+*Tuple* 
+
+A tuple is a general way of [underline]#grouping together# several values with a variety of types into one compound type. Tuples have a fixed length: once declared, [red]#they cannot grow or shrink in size#.
+
 Tuples can be destructured(splitted) using patter matching and can be accessed using period “.”. E.g:
+```
+let tup: (i32, f64, u8) = (500, 6.4, 1);
 let five_hundred = tup.0;
 let six_point_four = tup.1;
 let one = tup.2;
+```
 
-Shadowing: Shadowing lets us reuse variables with same name, rather than forcing us to create two unique variables. The second variable’s value is what appears when the variable is used. It’s also possible to change the type of the variable since we’re effectively creating a new variable. E.g.    
+Shadowing: Shadowing let us reuse variables with same name, rather than forcing us to create two unique variables. The second variable’s value is what appears when the variable is used. It’s also possible to change the type of the variable since we’re effectively creating a new variable. E.g. 
+
+```
 let word = “Hello”; 	//word is type string slice (&str)
 let word = word.len();   	//word is type usize with value 5
-2.2 Traits
---mut:  Assigns mutable (modifiable, non-static content) attribute. In Rust variables are immutable by default to enforce safety and easy concurrency. E.g.: let mut guess = 5;
- match number1.cmp(&number2) {         
-            Ordering::Less => println!("Number 1 is smaller"),
-            Ordering::Greater => println!("Number 1 is larger!"), 	
+```
+
+
+### Traits
+--mut:  Assigns mutable (modifiable, non-static content) attribute. In Rust variables are immutable by default to enforce safety and easy concurrency. E.g.:
+```
+let mut guess = 5;
+match number1.cmp(&number2) {         
+    Ordering::Less => println!("Number 1 is smaller"),
+    Ordering::Greater => println!("Number 1 is larger!"), 	
 	_ => (), 			//The “_” pattern will match any value.	
---match: allows us to compare a value against a series of patterns and then execute code based on which pattern matches. E.g. comparing returns an Ordering enum with 3 possible values: Less, Greater, Equal. Note that match is exhausting so all cases must be handled ( in case you want to handle remaining cases “_” place holder is a useful to match any pattern)
---const: constants are ALWAYS immutable. Furthermore, constants require annotated type and can only be set to a constant expression computed in compile time. const MAX_POINTS: u32 = 100_000;		//100,000
-In Rust, constatns use all upercase with underscores. Also, underscores can be inserted in numeric literals to improve readability.
+```
+**--match**: allows us to compare a value against a series of patterns and then execute code based on which pattern matches. E.g. comparing returns an Ordering enum with 3 possible values: Less, Greater, Equal. Note that match is exhausting so all cases must be handled ( in case you want to handle remaining cases “_” place holder is a useful to match any pattern) 
 
-2.4 Strings
-The String type is the most common type that has ownership over his contents, it’s growable and UTF-8 encoded, so it has a variable length that range from 1 and up to 6 bytes(the 8 in UTF-8 refers to the size of the code unit, which is 8 bits. For UTF-16 its 16 bits and so on). Rust ensure this and panics if you try to put invalid UTF-8 symbols). 
-UTF-8 (1993)[2]. (x represents data)*
+**--const**: constants are ALWAYS immutable. Furthermore, constants require annotated type and can only be set to a constant expression computed in compile time. `const MAX_POINTS: u32 = 100_000;		//100,000`
+In Rust, constants use all upercase with underscores. Also, underscores can be inserted in numeric literals to improve readability.
 
-# of bytes	First
-code point	Last
-code point	Byte 1	Byte 2	Byte 3	Byte 4	Byte 5	Byte 6
-1	U+0000	U+007F	0xxxxxxx					
-2	U+0080	U+07FF	110xxxxx	10xxxxxx				
-3	U+0800	U+FFFF	1110xxxx	10xxxxxx	10xxxxxx			
-4	U+10000	U+1FFFFF	11110xxx	10xxxxxx	10xxxxxx	10xxxxxx		
-5	U+200000	U+3FFFFFF	111110xx	10xxxxxx	10xxxxxx	10xxxxxx	10xxxxxx	
-6	U+4000000	U+7FFFFFFF	1111110x	10xxxxxx	10xxxxxx	10xxxxxx	10xxxxxx	10xxxxxx
+### Strings
+The [blue]#**String**# type is the most common type that has ownership over his contents, it’s growable and [blue]#UTF-8 encoded#, so it has a variable length that range from 1 and up to 6 bytes(the 8 in UTF-8 refers to the size of the code unit, which is 8 bits. For UTF-16 its 16 bits and so on). Rust ensure this and panics if you try to put invalid UTF-8 symbols). 
 
-Memory is requested from the memory allocator at runtime and returned(drop) via ownership system. To create a String(mutable) from a string literal(immutable, known and hardcoded into de executable at compile time (string literals are inside “” symbol)): 
+.UTF-8 (1993)[2]. (x represents data)*
+[width="100%",options="header,footer"]
+|====================
+|#of Bytes |First code point  |Last code point |Byte 1  |Byte 2|Byte 3|Byte 4 | Byte 5 | Byte 6
+|1|U+0000    |U+007F     |0xxxxxxx |||||
+|2|U+0080    |U+07FF     |110xxxxx |10xxxxxx ||||
+|3|U+0800    |U+FFFF     |1110xxxx |10xxxxxx|10xxxxxx |||
+|4|U+10000   |U+10FFFF   |11110xxx |10xxxxxx|10xxxxxx|10xxxxxx ||
+|5|U+200000  |U+3FFFFFF  |111110xx |10xxxxxx|10xxxxxx|10xxxxxx |10xxxxxx|
+|6|U+4000000 |U+7FFFFFFF |1111110x |10xxxxxx|10xxxxxx|10xxxxxx |10xxxxxx|10xxxxxx
+|
+|====================
+
+Memory is requested from the memory allocator at [red]#runtime# and returned(drop) via ownership system. To create a String(mutable) from a [underline]##**string literal**##(immutable, known and hardcoded into de executable at compile time (string literals are inside “” symbol)): 
+
+```
 let mut s = String::from("hello"); 	//creates a String from a string literal “hello”
 s.push_str(", world!"); 		// push_str() appends a literal to a String
 println!("{}", s);			 // This will print `hello, world!`
+```
+Strings are implemented as a Collection of bytes, plus some methods that provide functionality to those bytes when interpreted as text. Rust has ONLY ONE string type in the core language which is [red]#STRING SLICE# (str); the String type is provided as part of Rusts Standard Library rather than the core. However, both, String and str are UTF-8 encoded.
 
-Strings are implemented as a Collection of bytes, plus some methods that provide functionality to those bytes when interpreted as text. Rust has ONLY ONE string type in the core language which is STRING SLICE (str); the String type is provided as part of Rusts Standard Library rather than the core. However, both, String and str are UTF-8 encoded.
-Indexing isn’t allowed on Strings because UTF-8 symbols may take more than 1 byte so, invalid character may show up if we tried to return only 1 byte as the following example:
+[red]#Indexing# isn’t allowed on Strings because UTF-8 symbols may take more than 1 byte so, invalid character may show up if we tried to return only 1 byte as the following example:
+```
 let s1 = String::from("♥");
 let h = s1[0];	 // Rust doesn’t compile indexing on Strings
 //However, if you really want to use indexing, you can use string slices using the range of the slice. Note that this indexing MUST occur at UTF-8 valid characters boundaries so you cannot just read 1 byte of the multibyte heart emoji(3 bytes).
 let len = s1.len();
 let indexing = &s1[0..len];
-Iterating Over Strings
+```
+
+*Iterating Over Strings*  
+
 Since indexing Strings is out of the table, the recommendation is to access elements as char or bytes. 
-Interpreting Strings
-As chars	As bytes
-for c in "न म स्ते".chars() {
-    print!("{}", c);	//  न म स स्ते
-}	for b in "न म स्ते".bytes() {
-    println!("{},", b);         // 224,164..135 
-}
+ 
+.Interpreting Strings
+[width="100%",options="header,footer"]
+|====================
+| As chars |  As bytes
+|for c in "न म स्ते".chars() {print!("{}", c);	//  न म स स्ते
+|for b in "न म स्ते".bytes() {println!("{},", b);         // 224,164..135 
+|====================
+
 Strings are hard because: propensity for exposing errors in compile time, complicated structure, and UTF-8. But this will prevent you from having to handle errors involving non-ASCII characters.
 
-2.4.1 Slice Type(commonly used as &str)
+#### Slice Type(commonly used as &str)
 At the most basic, a slice is a pointer to a block of memory. Slices let you reference a contiguous sequence of elements in a collection rather than the whole collection(for example a part of an array or vector). 
-A String slice(&str) can be a reference pointing to an specific point of the binary(string literal) or a reference to part of a String(heap). So, String slices allows indexing on Strings or string literals, however, they must occur at valid UTF-8 character boundaries. Slice method from in String tracks a starting and an ending index. E.g. 
+
+A String slice(&str) can be a reference pointing to an specific point of the binary(string literal) or a reference to part of a String(heap). So, [blue]#String slices# allows indexing on [green]#Strings or string literals#, however, they must occur at valid UTF-8 character boundaries. Slice method [blue]#from# in String tracks a starting and an ending index. E.g.
+```
 let s = String::from("hello world");
 let hello = &s[0..5];
 let world = &s[6..11];
-
+```
 Slice Program: write a function that takes a string and returns the first word it finds in that string
+```
 fn first_word(s: &String) -> &str {
 let bytes = s.as_bytes();		// Convert our String to an array of bytes
 /* iter is a method that returns each element in a collection and that enumerate wraps the result of iter and returns each element as part of a tuple instead */
@@ -215,93 +270,127 @@ let bytes = s.as_bytes();		// Convert our String to an array of bytes
         if item == b' ' {  		//search for byte that represents the “space” (this uses byte literal).
             return &s[0..i]; }  }
     &s[..] }
-The advantage of using slices 
-•	Validity is ensured by lifetimes: since its referencing memory, the memory must be valid so its safer than Strings. 
-•	Borrowing rules apply: so no data races occur.
-•	More generic data type: it can reference string literals or Strings so its widely used in APIs.
-2.4.1.1 Two types of strings: String vs %str (and the implications of not having this on C language)
+```
+
+*The advantage of using slices* 
+
+* Validity is ensured by lifetimes: since its referencing memory, the memory must be valid so its safer than Strings. 
+* Borrowing rules apply: so no data races occur.
+* More generic data type: it can reference string literals or Strings so its widely used in APIs.
+
+#### Two types of strings: String vs %str (and the implications of not having this on C language)
 https://fasterthanli.me/blog/2020/working-with-strings-in-rust/
-Basically, this article says that in Rust, String type values are always UTF-8 valid symbols because you get an error otherwise. It is heap-allocated.
+
+Basically, this article says that in Rust, [green]#String# type values are always UTF-8 valid symbols because you get an error otherwise. It is heap-allocated.
 &str refer to data from anywhere: heap, stack or even program’s data segment.
-The implications of not having String on C
-By comparison, C has no string type. It doesn't even have a real character type. C char is.. an ASCII character plus an additional bit - effectively, it's just a signed 8-bit integer: int8_t.
-•	There is absolutely no guarantee that anything in a char* is a valid UTF-8, or a valid something for that matter. There is no encoding associated to a char*, which is just an address in memory. There is no length associated to it either, so computing its length involves finding the null terminator.
-•	Null-terminated strings are also a serious security concern. Not to mention that NULL is a valid Unicode character, so null-terminated strings cannot represent all valid UTF-8 strings.
+
+*The implications of not having String on C* 
+
+By comparison, [red]#C has no string type. It doesn't even have a real character type#. C char is.. an ASCII character plus an additional bit - effectively, [red]#it's just a signed 8-bit integer: int8_t#.
+
+* There is absolutely [red]#no guarantee that anything in a char* is a valid UTF-8#, or a valid something for that matter. There is no encoding associated to a char*, which is just an address in memory. There is [red]#no length# associated to it either, so computing its length involves finding the null terminator.
+* Null-terminated strings are also a serious security concern. Not to mention that NULL is a valid Unicode character, so null-terminated strings cannot represent all valid UTF-8 strings.
 
 
-2.5 Functions & Methods 
-Functions 
-fn example_function(x: i32, y: i32) { 
-	println!(“value of x is: {}”, x) …}
+### Functions & Methods 
+#### Functions 
+
 Rust doesn’t care where you define your functions, only that they’re defined somewhere (unlike C, where you must define a function before use it).
 In function signatures, you must declare the type of each parameter, this means in the annotated form. E.g. 
+```
+fn example_function(x: i32, y: i32) { 
+    println!(“value of x is: {}”, x) …}
+```
+*Functions with returning values:* 
 
-Functions with returning values:
 Return type goes after an arrow (->). Functions can return early by using the return keyword and specifying a value, but most functions return the last expression implicitly, by not adding semicolon (this means that this is the return value expression).
+```
 fn plus_one(x: i32) -> i32 { x + 1  }		//no semicolon, so it returns x + 1
 plus_one(5); 	//6
+```
+#### Methods
+Methods are similar to functions, they can have parameters, return value  
 
-Methods
-Methods are similar to functions, they can have parameters, return value 
-object::method() -> ´´method´´ is an associated function of an object type (static method). “::” is like namespace where 2 methods equally named are totally different if they namespace is different. E.g:
- let guess = String::new();		//method that creates a new instance of a String
+`object::method()` -> "method" is an associated function of an object type (static method). “::” is like namespace where 2 methods equally named are totally different if they namespace is different. E.g:
+```
+let guess = String::new();		//method that creates a new instance of a String
 instance::method.submethod() -> Calls sub-method on method handle. E.g.: io::stdin().read_line();
+```
+### Failures
+[blue]#Result# types are enumerations. For Result, the variants are Ok or Err. The Ok variant indicates the operation was successful, and inside Ok is the successfully generated value. The Err variant means the operation failed and Err contains information about how or why the operation failed. The purpose of these Result types is to encode error-handling information.
 
-2.6 Failures
-Result types are enumerations. For Result, the variants are Ok or Err. The Ok variant indicates the operation was successful, and inside Ok is the successfully generated value. The Err variant means the operation failed and Err contains information about how or why the operation failed. The purpose of these Result types is to encode error-handling information.
-E.g.: .expect(“failed”) -> Expect Unwraps a result, yielding the content of an Ok. Otherwise panics and includes message and content of Err.
+`E.g.: func().expect(“failed”)` -> [blue]#expect# Unwraps a result, yielding the content of an Ok. Otherwise panics and includes message and content of Err.
 
-2.7 Scope {}
+### Scope {}
 A scope is the range within a program for which an item is valid.
-2.8 Loops
 
-For	While	Loop
-Increased  safety of the code and eliminated the chance of bugs that might result from going beyond the end of the array or not going far enough and missing some items.	Useful to evaluate a condition within a loop. However, is slower because the compiler adds runtime code to perform the conditional check on every element on every iteration through the loop.	Executes a block of code over and over again forever or until you explicitly tell it to stop.
-let a = [10, 20, 30, 40, 50];
+### Loops
 
-for element in a.iter() {
-     println!("the value is:
-     {}", element);
-}
-	let mut number = 3;
-while number != 0 {
-        println!("{}!", number);
 
-        number -= 1;
-    }	loop {
-        println!("again!";
-    }
+.Loops
+[width="100%",options="header,footer"]
+|====================
+| For | While | Loop 
+| Increased  safety of the code and eliminated the chance of bugs that might result from going beyond the end of the array or not going far enough and missing some items. 
+| Useful to evaluate a condition within a loop. However, is slower because the compiler adds runtime code to perform the conditional check on every element on every iteration through the loop. 
+| Executes a block of code over and over again forever or until you explicitly tell it to stop. 
+|let a = [10, 20, 30, 40, 50];
 
+for element in a.iter() { 
+
+println!("the value is: {}", element);}
+|let mut number = 3; 
+
+while number != 0 { 
+
+println!("{}!", number); number -= 1; }
+|loop {println!("again!";}
+|====================
 
 Note: Loops can return a value with the break statement
+```
 Let result = loop {
-        counter += 1;
+    counter += 1;
+    if counter == 10 {
+        break counter * 2;
+    }
+};				// the ; makes the loop a statement, assigning the counter value to result.
+```
 
-        if counter == 10 {
-            break counter * 2;
-        }
-    };				// the ; makes the loop a statement, assigning the counter value to result.
+## Stack & Heap
+Stack-allocated data has a known, fixed size, LIFO.
 
-3. Stack & Heap
-Stack-allocated data has a known, fixed size, LIFO. Data with an unknown size at compile time or a size that might change must be stored on the heap instead. The heap is less organized: when you put data on the heap, you request a certain amount of space. The operating system finds an empty spot in the heap that is big enough, marks it as being in use, and returns a pointer, which is the address of that location. This process is called allocating on the heap and is sometimes abbreviated as just allocating. Pushing values onto the stack is not considered allocating. Because the pointer is a known, fixed size, you can store the pointer on the stack, but when you want the actual data, you must follow the pointer.
+Data with an unknown size at compile time or a size that might change must be stored on the heap instead.  
 
-4. Ownership
-All programs must manage the way they use a computer’s memory while running. Some languages have garbage collection that constantly looks for no longer used memory as the program runs; in other languages, the programmer must explicitly allocate and free the memory. Rust uses a third approach: memory is managed through a system of ownership with a set of rules that the compiler checks at compile time. None of the ownership features slow down your program while it’s running.
-4.1 Ownership Rules
-•	Each value in Rust has a variable that’s called its owner.
-•	There can only be one owner at a time.
-•	When the owner goes out of scope, the value will be dropped hence the memory is freed.
+The heap is less organized: when you put data on the heap, you request a certain amount of space. The operating system finds an empty spot in the heap that is big enough, marks it as being in use, and returns a pointer, which is the address of that location. This process is called allocating on the heap and is sometimes abbreviated as just allocating. Pushing values onto the stack is not considered allocating. Because the pointer is a known, fixed size, you can store the pointer on the stack, but when you want the actual data, you must follow the pointer.
+
+## Ownership
+All programs must manage the way they use a computer’s memory while running. Some languages have [underline]#garbage collection# that constantly looks for no longer used memory as the program runs; in other languages, the programmer must explicitly [underline]##allocate and free the memory##. Rust uses a third approach: memory is managed through a *system of ownership* with a set of rules that the compiler checks at compile time. None of the ownership features slow down your program while it’s running.
+
+### Ownership Rules
+
+* Each value in Rust has a variable that’s called its owner.
+* There can only be one owner at a time.
+* When the owner goes out of scope, the value will be dropped hence the memory is freed. 
+
+
 Note: Ownership rules applies to variables as well as functions.
-4.2 Interacting with data: Move if Heap, Copy if Stack, 
-Rust will never automatically create “deep” copies of your heap allocated data(because could result in poor performance). Instead Rust performs a “move” operation, on which:
-•	Stack-allocated Data is Copied with an internal clone.
-•	Heap-allocated Data copies just the reference to the same location. It transfers ownership! So previous variable is invalidated(avoiding double free problem).
+
+### Interacting with data: Move if Heap, Copy if Stack.
+
+Rust will [red]#never# automatically create “deep” copies of your heap allocated data(because could result in poor performance). Instead Rust performs a “move” operation, on which:
+
+* Stack-allocated Data is Copied with an internal clone.
+* Heap-allocated Data copies just the reference to the same location. It transfers ownership! So previous variable is invalidated(avoiding double free problem).
+
 This way, the previous owner will not try to drop memory when goes out of scope because it’s invalid; the new owner will now oversee the value dropping. In the next example, known size values like length and capacity are stored on the Stack so they are copied; dynamic values like String ptr data is allocated on heap so only the pointer is copied, however ownership is passed as shown on F4.1.1.
+```
 let s1 = String::from("hello");   //String stores some values on Heap and some on Stack
 let s2 = s1;			    //s1 is now invalid for safety. Now S2 has ownership
-
+```
  
-F4.1.1 Representation in memory after s1 has been invalidated. 
+.Representation in memory after s1 has been invalidated. 
+image::images/2_stackheap.jpg[]
 
 Ownership in functions
 Pass copy	Pass ownership
@@ -321,9 +410,9 @@ Note: To create a deep copy, including heap data, use clone() method. let s2 = s
 5. Reference (&) and borrowing
 & -> Get memory address: operator that gets the memory address (in hexadecimal) of a piece of data.
 5.1 The Rules of References
-•	At any given time, you can have either one mutable reference or any number of immutable references. 
-•	References must always be valid(lifetime).
-•	References are immutable by default and the scope determines its validity.
+* At any given time, you can have either one mutable reference or any number of immutable references. 
+* References must always be valid(lifetime).
+* References are immutable by default and the scope determines its validity.
 5.2 Borrowing
 It’s also possible to use a value without taking ownership, by using references (&), we call having references as function parameters borrowing. The scope in which the variable is valid isn’t affected by the borrowing variable/function, so we don’t have to drop what the reference points to when it goes out of scope because we didn’t had ownership in the first place. 
 
@@ -493,8 +582,8 @@ fn value_in_cents(coin: Coin) -> u8 {
     }
 }
 enum UsState{ Alaska, Alabama, ….}	//remember that enums can embed data.
-•	=>, separates the pattern to match and the code to run, in this case the code is just the value.
-•	_, wildcard that matches any value.
+* =>, separates the pattern to match and the code to run, in this case the code is just the value.
+* _, wildcard that matches any value.
 Match with Option<T>: function that takes an Option<i32> and, if there’s a value inside, adds 1 to that value. If there isn’t a value inside, the function should return the None value and not attempt to perform any operations.
     fn plus_one(x: Option<i32>) -> Option<i32> {
         match x {
@@ -521,10 +610,10 @@ if let Some(3) = some_u8_value {
 As a project grows, you can organize code by splitting it into multiple modules and then multiple files. As a package grows, you can extract parts into separate crates that become external dependencies.
 Once you’ve implemented an operation, other code can call that code via the code’s public interface without knowing how the implementation works.
 Rust has features that allow you to manage your code’s organization, including which details are exposed(public), which details are private, and what names are in each scope in your programs. These features, sometimes collectively referred to as the module system, include:
-•	Packages: A Cargo feature that lets you build, test, and share crates. A package can contain multiple binary crates and at most one library crate.
-•	Crates: A tree of modules that produces a library or executable
-•	Modules and use: blocks that let you control the organization, scope, and privacy of paths(private/public)
-•	Paths: A way of naming an item, such as a struct, function, or module
+* Packages: A Cargo feature that lets you build, test, and share crates. A package can contain multiple binary crates and at most one library crate.
+* Crates: A tree of modules that produces a library or executable
+* Modules and use: blocks that let you control the organization, scope, and privacy of paths(private/public)
+* Paths: A way of naming an item, such as a struct, function, or module
 8.1 Packages and crates
 When we create a new project via cargo new, Cargo creates the Cargo.toml file giving us a package. there’s no mention of src/main.rs because Cargo follows a convention that src/main.rs is the crate root of a binary crate with the same name as the package. Likewise, Cargo knows that if the package directory contains src/lib.rs, the package contains a library crate and  src/lib.rs is its crate root. Cargo passes the crate root files to rustc to build the library or binary. Finally because crates are namespaced, which means that they have their own scope so no confusion of which library function is being called. 
  8.2 Defining modules to control scope and privacy
@@ -588,13 +677,13 @@ pub fn eat_at_restaurant() {
     // meal.seasonal_fruit = String::from("blueberries");
 Paths
 To find an item in a module tree, we use paths to navigate the filesystem. A path can take two forms:
-•	An absolute path starts from a crate root by using a crate name or a literal crate. E.g: 
+* An absolute path starts from a crate root by using a crate name or a literal crate. E.g: 
 o	crate::front_of_house::hosting::add_to_waitlist(); 
 
 	use crate::front_of_house::hosting;
 
 	pub fn eat_at_restaurant(){ hosting::add_to_waitlist(); }
-•	A relative path starts from the current module and uses self, super, or an identifier in the current module.
+* A relative path starts from the current module and uses self, super, or an identifier in the current module.
 Use keyword brings a path into scope to use them as if they were local items. E.g: 
 
 Using multiple items
@@ -640,9 +729,9 @@ pub fn eat_at_restaurant() {
 
 9. Common collections
 Standard library includes data structures called collections which may contain multiple data types. Unlike built-in array and tuples, these collections are stored on the heap!:
-•	Vector: allows you to store a variable number of values of the same type in contiguous memory.
-•	String: is a collection of UTF-8 values. 
-•	Hash map: allows you to associate a value with a particular key. It’s a particular implementation of the more general data structure called a map.
+* Vector: allows you to store a variable number of values of the same type in contiguous memory.
+* String: is a collection of UTF-8 values. 
+* Hash map: allows you to associate a value with a particular key. It’s a particular implementation of the more general data structure called a map.
   let mut v: Vec<i32> = Vec::new();	//Vec<T>, generic so it can hold any type
   v.push(5);			  	// updating a vector
 //or 
@@ -651,8 +740,8 @@ let v = vec![1, 2, 3];		// macro to create vector with initial values, it infers
 9.1.1 Creating a new vector
 
 9.1.2 Reading elements of vector
-•	Vectors are indexed by number, starting at zero.
-•	Two ways of accessing an element:
+* Vectors are indexed by number, starting at zero.
+* Two ways of accessing an element:
 o	Using & and [ ], which give us a reference.
 o	Using “get” method with the index passed as an argument, which give us an Option<&T>
 let v = vec![1, 2, 3, 4, 5];
@@ -713,8 +802,8 @@ By default, HashMap uses a “cryptographically strong” hashing function calle
 
 10. Error Handling
 Rust divides errors(Rust doesn’t have exceptions) into 2 categories:
-•	Recoverable errors: its reasonable to report the problem to the user and retry the operation. it uses Result<T, E> enum
-•	Unrecoverable errors: symptoms of bugs, like trying to access a location beyond the end of an array. It uses panic! Macro to print a failure message, unwind and clean up the stack, finally exiting the program.
+* Recoverable errors: its reasonable to report the problem to the user and retry the operation. it uses Result<T, E> enum
+* Unrecoverable errors: symptoms of bugs, like trying to access a location beyond the end of an array. It uses panic! Macro to print a failure message, unwind and clean up the stack, finally exiting the program.
 Errors can be expanded using --explain parameter or  using --verbose.
 10.1 Unrecoverable errors with panic!
 A full panic! Unwinds and cleans the stack. Alternatively, Rust can just use abort profile(panic = ‘abort’) which ends the program without cleaning the stack to speed up the process and reduce binary size.
@@ -990,9 +1079,9 @@ This program returns the longer of two string slices(Lifetimes) but also prints 
 12 Writing automated test
 12.1 How to write tests
 Test functions typically perform 3 actions:
-•	Set up any needed data or state.
-•	Run the code you want to test.
-•	Assert the results are what you expect.
+* Set up any needed data or state.
+* Run the code you want to test.
+* Assert the results are what you expect.
 Rust offers test and should_panic attributes and macros to achieve these actions.
 Creating test functions
 To change a function into a test function, add #[test] before fn. Test can be run with “cargo test” command for which Rust builds a test runner special binary that contains and reports only the test annotated functions.
@@ -1054,10 +1143,10 @@ fn it_adds_two() {
 
 13. Functional features: Closures and Iterators
 We’ll cover:
-•	Closures: a function-like construct you can store in a variable
-•	Iterators: a way of processing a series of elements
-•	How to use these two features to improve the minigrep project
-•	The performance of these two features (Spoiler alert: they’re faster than you might think!)
+* Closures: a function-like construct you can store in a variable
+* Iterators: a way of processing a series of elements
+* How to use these two features to improve the minigrep project
+* The performance of these two features (Spoiler alert: they’re faster than you might think!)
 13.1 Closures
 Closures are anonymous functions you can save in a variable or pass as arguments to other functions. You can create the closure in one place and call it in a different context. Unlike functions, closures can capture values from the scope in which they are defined.
 13.1.1 Closures vs functions
@@ -1087,9 +1176,9 @@ println!("Calling the closure", expensive_closure(43));
 //at this point we still need to execute the expensive_closure each time we need the 
 //result but we will see on 13.1.3 how to implement memory to remember past calcula-tions
 13.1.2 Closure features
-•	Closures allow us to define the code to call at one point, store it in a variable and call it at a later point.
-•	Closures do not require explicit annotations of types because they are not part of the user interface which requires explicit annotations to ensure everyone agrees on what types of values functions uses.
-•	Closures are usually short and relevant only within a narrow context/scope so compiler is reliably able to infer parameters and return types. 
+* Closures allow us to define the code to call at one point, store it in a variable and call it at a later point.
+* Closures do not require explicit annotations of types because they are not part of the user interface which requires explicit annotations to ensure everyone agrees on what types of values functions uses.
+* Closures are usually short and relevant only within a narrow context/scope so compiler is reliably able to infer parameters and return types. 
 Where does the closure syntax comes from?
 fn  add_one_v1   (x: u32) -> u32 { x + 1 }
 let add_one_v2 = |x: u32| -> u32 { x + 1 };
@@ -1141,18 +1230,18 @@ Closures can capture environment and access variables from the SCOPE WHERE THEY 
 
     assert!(equal_to_x(y));		//closure call, assert passes!.  x is equal to y
 Closures can capture values from the environment in three ways: 
-•	FnOnce consumes the variables it captures from its enclosing scope, known as the closure’s environment. To consume the captured variables, the closure must take ownership of these variables and move them into the closure when it is defined. The Once part of the name represents the fact that the closure can’t take ownership of the same variables more than once, so it can be called only once.
+* FnOnce consumes the variables it captures from its enclosing scope, known as the closure’s environment. To consume the captured variables, the closure must take ownership of these variables and move them into the closure when it is defined. The Once part of the name represents the fact that the closure can’t take ownership of the same variables more than once, so it can be called only once.
 You can use move keyword to take ownership.
-•	FnMut can change the environment because it mutably sborrows values.
-•	Fn borrows values from the environment immutably.
+* FnMut can change the environment because it mutably sborrows values.
+* Fn borrows values from the environment immutably.
 However, when closures capture the environment, it uses memory to store the values for the use in the closure body. This use of memory is overhead that we don’t want to pay in more common cases. 
 
 13.2 Iterators
 An iterator is responsible of the logic for traverse over each item and determining when the sequence has finished.
 13.2.1 Features
-•	Iterators are “lazy”: meaning they have no effect until you call methods that perform an operation. 
-•	Zero-cost abstractions: Iterators apply different kinds algorithms to different kinds of sequences, so they normally improve performance.
-•	Interface maintained: algorithms are apply by the compiler, so the user interface is maintained over these different sequences.
+* Iterators are “lazy”: meaning they have no effect until you call methods that perform an operation. 
+* Zero-cost abstractions: Iterators apply different kinds algorithms to different kinds of sequences, so they normally improve performance.
+* Interface maintained: algorithms are apply by the compiler, so the user interface is maintained over these different sequences.
 13.2.2 Consumer Adaptors and iterator adaptors
 All iterators implement Iterator trait. Next method consumes the iterated item, this means that once called next() the item will no longer be usable because it loses ownership.
 pub trait Iterator {
@@ -1223,11 +1312,11 @@ Iterators are slightly faster. Iterators get compiled to roughly same code as if
 
 14. More about Cargo and Crates.io
 Cargo can do much mora than build, run and test code. You can find everything cargo can do on Cargo book:  https://doc.rust-lang.org/cargo/index.html
-•	Customize your build through release profiles
-•	Publish libraries on crates.io
-•	Organize large projects with workspaces
-•	Install binaries from crates.io
-•	Extend Cargo using custom commands
+* Customize your build through release profiles
+* Publish libraries on crates.io
+* Organize large projects with workspaces
+* Install binaries from crates.io
+* Extend Cargo using custom commands
 14.1 Customizing builds with release profiles
 You can add custom profiles on Cargo.toml, by adding [profile.*] sections to any profile you want to cutomize.
 //Cargo.toml
@@ -1246,9 +1335,9 @@ Help manage multiple related packages that are developed in tandem.
 15. Smart Pointers
 A pointer is a general concept for a variable that contains an address in memory. This address refers to, or “points at,” some other data. The most common kind of pointer in Rust is a reference(&), which only borrows data. They don’t have any special capability nor overhead.
 Smart pointers, on the other hand, are data structures that not only act like a pointer but also:
-•	Have additional capabilities(some smart pointers own data or make some guarantee) and metadata.
-•	Usually implemented with structs that implement Deref(reference like behavior) and Drop(scope) traits.
-•	Most common smart pointers are: 
+* Have additional capabilities(some smart pointers own data or make some guarantee) and metadata.
+* Usually implemented with structs that implement Deref(reference like behavior) and Drop(scope) traits.
+* Most common smart pointers are: 
 o	Box<T>, for allocating values on the heap
 o	Rc<T>, a reference counting type that enables multiple ownership of data by keeping track of the number of owners and cleans up when no owner remains.
 o	Ref<T> and RefMut<T>, accessed through RefCell<T>, a type that enforces the borrowing rules at runtime instead of compile time. Allow us to mutate data of immutable references.
@@ -1256,9 +1345,9 @@ We’ve already encountered a few smart pointers, such as String and Vec<T> in C
 
 15.1 Using Box<T> to Point to Data on the Heap
 Boxes allow you to store data on the heap. They don’t have performance overhead(other than using the heap). They are used in the following situations:
-•	Type whose size can’t be known at compile time and you want to use the exact size.
-•	Large amount of data and you want to transfer ownership but not copy of data.
-•	You want to own a value and care only that it’s a type that inplements a particular trait.
+* Type whose size can’t be known at compile time and you want to use the exact size.
+* Large amount of data and you want to transfer ownership but not copy of data.
+* You want to own a value and care only that it’s a type that inplements a particular trait.
 let b = Box::new(5);			//Creates a box pointer that points to value 5 stored on heap.
     println!("b = {}", b);		//When b goes out of scope, also the data in the heap.
 Enabling recursive types with boxes
@@ -1324,8 +1413,8 @@ fn main() {
 
 15.4 RC<T> the reference counted smart pointer
 When we want a single value to have multiple owners, Rust has a type called Rc<T> which is an abbreviation for reference counting. For example in a graph, where multiple edges point to the same node, that node is conceptually owned by all edges.  We can use Rc<T> for:
-•	Share data via immutable references(for reading only). If you want to mutate data, you can see RefCell<T>(next section).
-•	Cleanup data only when pointer has 0 owners
+* Share data via immutable references(for reading only). If you want to mutate data, you can see RefCell<T>(next section).
+* Cleanup data only when pointer has 0 owners
 Imagine you want to point a as follows:
  
 Since Cons variants owns the data, sharing “a” with “b” would result in a compiler error. Instead, when we create b, we can clone the Rc<List> that “a” is holding(thereby increasing the number of reference of the Rc).
@@ -1456,16 +1545,16 @@ Concurrent programming, where different parts of a program execute independently
 Parallel programming, where different parts of a program execute at the same time are becoming important.
 Ownership and type systems are a powerful set of tools to manage memory safety and concurrency problems.
 Here are the topics we’ll cover in this chapter:
-•	How to create threads to run multiple pieces of code at the same time
-•	Message-passing concurrency, where channels send messages between threads
-•	Shared-state concurrency, where multiple threads have access to some piece of data
-•	The Sync and Send traits, which extend Rust’s concurrency guarantees to user-defined types as well as types provided by the standard library
+* How to create threads to run multiple pieces of code at the same time
+* Message-passing concurrency, where channels send messages between threads
+* Shared-state concurrency, where multiple threads have access to some piece of data
+* The Sync and Send traits, which extend Rust’s concurrency guarantees to user-defined types as well as types provided by the standard library
 
 16.1 Using threads to run code simultaneously
 In most current OS, a program code run in a process and the OS manages multiple processes at once. Within your program you can also have independent parts that run simultaneously(threads->program flow). However, since threads run simultaneously, they can led to problems such as:
-•	Race conditions, where threads are accessing data or resources in an inconsistent order
-•	Deadlocks, where two threads are waiting for each other to finish using a resource the other thread has, preventing both threads from continuing
-•	Bugs, that happen only in certain situations and are hard to reproduce and fix reliably
+* Race conditions, where threads are accessing data or resources in an inconsistent order
+* Deadlocks, where two threads are waiting for each other to finish using a resource the other thread has, preventing both threads from continuing
+* Bugs, that happen only in certain situations and are hard to reproduce and fix reliably
 Programming in a multithreaded context requires careful thought and different code structure than the one for single thread.  Programming languages implement threads in few different ways:
 Some languages provide an API for dealing with threads. This model is called 1:1, because one OS thread calls one language thread. This is the Rust standard library implementation.
 thread::spawn( | | {
@@ -1530,7 +1619,7 @@ fn main() {
 Message passing is a good way to handle concurrency/parallelism but we can also manage it with shared-memory. Channels are similar to single ownership because once you transfer the value down a channel, you should no longer use it. Shared memory is like multiple ownership so we need mutexes to control access.
 Using mutexes to allow data from one thread at a time
 To access data in a mutex, a thread must first signal that it wants to aquire the mutex’s lock(data structure that controls access). You have to remember 2 rules when managing mutexes:
-•	You must attempt to acquire the lock before using the data.
+* You must attempt to acquire the lock before using the data.
 use std::sync::Mutex;
 
     let m = Mutex::new(5);		//smart pointer called MutexGuard.
@@ -1539,7 +1628,7 @@ use std::sync::Mutex;
         let mut num = m.lock().unwrap();		//will fail if another thread is holding the llock
         *num = 6;
     }
-•	When you’re done with the data that the mutex guards, you must unlock the data so other threads can acquire the lock.
+* When you’re done with the data that the mutex guards, you must unlock the data so other threads can acquire the lock.
 Mutex<T> API
 
 Sharing a Mutex between multiple threads
