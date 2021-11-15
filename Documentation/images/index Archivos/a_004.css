@@ -1,0 +1,25 @@
+body {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.asciidocfx-container {
+    margin: 10px 15px 10px 10px;
+}
+
+@media (min-width: 75em) {
+    .asciidocfx-container {
+        width: 70em;
+        margin: 10px auto 10px auto;
+    }
+}
+
+@media (min-width: 120em) {
+    .asciidocfx-container {
+        width: 85em;
+        margin: 10px auto 10px auto;
+    }
+}
