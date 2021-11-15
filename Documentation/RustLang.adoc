@@ -498,7 +498,7 @@ let user2 = User {
 };
 ```
 
-Note: to update struct use dot notation. E.g: user1.email = String::from(“etapia@gmail.com”);. We use String to OWN the data.
+Note: to update struct use dot notation. E.g: `user1.email = String::from(“etapia@gmail.com”);`. We use String to OWN the data.
 
 ### Tuple structure
 
@@ -930,7 +930,7 @@ Although the number of key-values is growable, each key can ONLY have ONE VALUE 
 ====
 *Hashing function*
 
-By default, HashMap uses a “cryptographically strong” hashing function called Blake(see https://www.131002.net/siphash/siphash.pdf)(updated to SipHash ). Provides resistance to DoS attacks, but its tradeoff for security drops a little speed. However, it can be changed for a different hasher using BuildHasher trait.
+By default, HashMap uses a “cryptographically strong” hashing function called Blake(see Blake (edit: updated to sipHash) https://www.131002.net/siphash/siphash.pdf[updated to SipHash]. Provides resistance to DoS attacks, but its tradeoff for security drops a little speed. However, it can be changed for a different hasher using BuildHasher trait.
 ====
 
 
@@ -1437,7 +1437,7 @@ let expensive_closure = |num| {
         num
     };
 println!("Calling the closure", expensive_closure(43)); 
-//at this point we still need to execute the expensive_closure each time we need the result but we will see on 13.1.3 how to implement memory to remember past calcula-tions
+//at this point we still need to execute the expensive_closure each time we need the result but we will see on "Cache:Storing closures" how to implement memory to remember past calculations
 ```
 
 
@@ -1947,7 +1947,7 @@ let handle = thread::spawn(|| {
         thread::sleep(Duration::from_millis(1));
     }
 });
-// handle.join().unwrap();		//if we move the join handle, it will run everythin on the spawn thread first
+// handle.join().unwrap();		//if we move the join handle, it will run everything on the spawn thread first
 for i in 1..5 {
     println!("hi number {} from the main thread!", i);
     thread::sleep(Duration::from_millis(1));
@@ -1957,7 +1957,7 @@ handle.join().unwrap();		//waits for spawned thread to finish, alternating OS pr
 ```
 *Using data on multiple threads*
 
-The move closure is often used alongside thread::spawn to use data from one thread into another. Move keyword force the closure to take ownership of the values.
+The [blue]#move# closure is often used alongside thread::spawn to use data from one thread into another. Move keyword force the closure to take ownership of the values.
 ```
 let v = vec![1, 2, 3];
 let handle = thread::spawn(move | | {
@@ -1993,7 +1993,7 @@ fn main() {
 ```
 
 ### Shared-state Concurrency
-Message passing is a good way to handle concurrency/parallelism but we can also manage it with shared-memory. Channels are similar to single ownership because once you transfer the value down a channel, you should no longer use it. Shared memory is like multiple ownership so we need mutexes to control access.
+Message passing is a good way to handle concurrency/parallelism but we can also manage it with [green]#shared-memory#. Channels are similar to single ownership because once you transfer the value down a channel, you should no longer use it. Shared memory is like multiple ownership so we need mutexes to control access.
 
 *Using mutexes to allow data from one thread at a time*
 
@@ -2014,7 +2014,7 @@ let m = Mutex::new(5);		//smart pointer called MutexGuard.
 
 *Sharing a Mutex between multiple threads*
 
-As we recall Rc should not be used on multithreaded systems, Fortunately Arc is a type like Rc that is safe to use in concurrent situations. A stands for atomic. We normally not use Arc because it comes with a performance penalty.
+As we recall [red]#Rc should not be used on multithreaded systems#, Fortunately Arc is a type like Rc that is safe to use in concurrent situations. "A" stands for atomic. We normally do not use Arc because it comes with a performance penalty.
 
 ```
 //let counter = Mutex::new(0);  //this yields an error due to owning
@@ -2041,45 +2041,292 @@ println!("Result: {}", *counter.lock().unwrap());
 
 
 
-# Object Oriented Programming
+
+### Embedded concurrency with Sync and Send traits
+[blue]#Send# marker trait indicates that *ownership* of values of the type implementing Send can be *transferred between threads*. 
+
+[blue]#Sync# marker trait indicates that it is safe for the type implementing Sync to be *referenced from multiple threads*
 
 
+## Object Oriented Programming
+Rust implements some features of OOP languages like: 
+
+* Encapsulation: hiding implementation details to external code -> pub keyword
+* Objects: A package of data and procedures -> structs and enums have data, and impl blocks provide methods on structs and enums.
+* [red]#Inheritance#: inherit data and behavior from another object definition. -> There is [red]#no way for Rust# to define a struct that inherits parent struct field and methods. However, Rust provides means to reuse implementations with generics or to use default implementations with traits.
+* [red]#Polymorphism#: enable a child to be used in the same places as a parent type, this means, substitute multiple objects for each other at runtime if they share certain characteristics.  Rust instead [green]#uses generics to abstract over different possible types and trait bounds to impose constraints# on what those types must provide. This is sometimes called bounded parametric polymorphism.
+
+### Using trait objects: Allow values of different types
+In <<Common collections>>, we mentioned that vectors can only store elements of one type. We used SpreadsheetCell to hold integers, floats and text. This is perfect for items with fixed set of types.
+
+However, we sometimes we want our user to be able to extend the set of types that are valid. For example on a GUI, you want to implement draw method on each component that we want to print on screen.
+
+*Defining a trait for common behavior*
+
+To provide drawable components, we can define a trait named Draw that will have one method named draw. Then, we define a vector that takes a trait object(a trait object point to an instance of a type and a table used to look up trait methods at runtime). 
+
+```
+pub trait Draw {
+    fn draw(&self);
+}
+
+//We create a trait object by specifying some sort of pointer, such as a & reference or a Box<T> smart pointer, then the dyn keyword, and then specifying the relevant trait.
+pub struct Screen {
+    pub components: Vec<Box<dyn Draw>>,
+}
+impl Screen {
+    pub fn run(&self) {
+        for component in self.components.iter() {
+            component.draw();
+        }
+    }
+}
+
+```
+
+A generic type parameter <T> [red]#can only be substituted with one concrete type at a time#, whereas trait objects allow for multiple concrete types to fill in for the trait object at runtime.
+ 
+*Implementing a trait*
+
+Then someone can use our GUI library to implement a selection box.
+```
+use gui::Draw;
+use gui::{Button, Screen};
+
+struct SelectBox {
+    width: u32,
+    height: u32,
+    options: Vec<String>,
+}
+
+impl Draw for SelectBox {
+    fn draw(&self) {
+        // code to actually draw a select box
+    }
+}
 
 
+fn main() {
+    let screen = Screen {
+        components: vec![
+            Box::new(SelectBox {
+                width: 75,
+                height: 10,
+                options: vec![
+                    String::from("Yes"),
+                    String::from("Maybe"),
+                    String::from("No"),
+                ],
+            }),
+            Box::new(Button {
+                width: 50,
+                height: 10,
+                label: String::from("OK"),
+            }),
+        ],
+    };
 
+    screen.run();
+}
+```
+[WARNING]
+====
+Safety is required for trait objects
 
+You can only make object-safe traits into trait objects. Rust forgets the concrete type implementing a trait once you've used a trait objects, which basically means that:
 
+* The return type must not be Self. 
+* There should be no generic type parameters.
+====
 
+### Implementing Object-Oriented design pattern
+We will implement a blog post workflow that has the following functionalities:
 
+* A blog post starts as an empty draft.
+* When the draft is done, a review of the post is requested.
 
+Using state pattern design: a value has some internal state which is represented by a set of state objects and values behavior changes based on the internal state. so we dont need to change code value but behavior of state objects.
 
+*Defining post and creating new instance in draft state*
 
+When we create a new Post, we set its state field to a Some value that holds a Box. This Box points to a new instance of the Draft struct. This ensures whenever we create a new instance of Post, it will start out as a draft
 
+```
+pub struct Post {
+    state: Option<Box<dyn State>>,
+    content: String,
+}
 
+impl Post {
+    // --snip--
+    pub fn new() -> Post {
+        Post {
+            state: Some(Box::new(Draft {})),
+            content: String::new(),
+        }
+    }
 
+    pub fn add_text(&mut self, text: &str) {
+        self.content.push_str(text);
+    }
 
+    pub fn content(&self) -> &str {
+        self.state.as_ref().unwrap().content(self)
+    }
+// ability to change state from draft to Pending review
+    pub fn request_review(&mut self) {
+        if let Some(s) = self.state.take() {
+            self.state = Some(s.request_review()) // Calls internal request_review
+        }
+    }
+}
 
+// shared behavior by different post states
+trait State {
+    fn request_review(self: Box<Self>) -> Box<dyn State>;
+    fn content<'a>(&self, post: &'a Post) -> &'a str {
+        ""
+    }
+}
 
+struct Draft {}
 
+// internal request review for Draft
+impl State for Draft {
+    fn request_review(self: Box<Self>) -> Box<dyn State> {
+        Box::new(PendingReview {})
+    }
+}
 
+struct PendingReview {}
 
+// internal request review for Pending review
+impl State for PendingReview {
+    fn request_review(self: Box<Self>) -> Box<dyn State> {
+        self
+    }
+}
+```
 
+*Trade-off of state pattern*
 
+The methods on Post know nothing about the various behaviors. The way we organized the code, we have to look in only one place to know the different ways a published post can behave: the implementation of the State trait on the Published struct. 
 
+The downsides of state pattern is that two adjacent states are coupled to each other. Also some duplicated logic exists.
 
+If we were to create an alternative implementation that didn’t use the state pattern, we might instead use match expressions in the methods on Post or implementing transitions as different types(Post can be published but DraftPost cannot).
 
+## Patterns and Matching
+Patterns give you more control over the porgrams flow, a pattern consist of:
 
+* Literals
+* Destructured arrays, enums, structs, or tuples
+* Variables
+* Wildcards
+* Placeholders
 
+To use a pattern, we compare it to some value. If the pattern matches the value, we use the value parts in our code.
 
-Appendix A: In deep
-A1. Enumerators
+### Patterns use cases
 
+*Match arms*
 
+All posibilities must be handled.
+```
+match VALUE {
+    PATTERN1 | PATTERN2  => EXPRESSION,     //multiple patterns
+    PATTERN if condition < 5 => EXPRESSION, //extra conditions
+    range0..=range_last => EXPRESSION,      //range
+    _ => Expression //handles any other case
+}
+```
 
+*Conditional if let*
 
+Shorter way of matching only one case. However is not exhaustive(possible logic bugs).
 
+```
+let favorite_color: Option<&str> = None;
+    let is_tuesday = false;
+    let age: Result<u8, _> = "34".parse();
 
-Appendix C: Compiler
-C1. Immutability:
-The compiler guarantees that when you state immutable variables, the value really won’t change. This is done by getting compiler errors. 
-Note that mutating an instance in place is faster than copying and returning newly allocated instances.
+    if let Some(color) = favorite_color {
+        println!("Using your favorite color, {}, as the background", color);
+    } else if is_tuesday {
+        println!("Tuesday is green day!");
+```
+
+### Refutability: wether a pattern might Fail or match
+Patterns come in two forms: refutable and irrefutable. Patterns that will match for any possible value passed are irrefutable(let x = 5) and patterns that can fail are refutable as Some(x).
+
+## Advanced features
+Here are some of the most advanced features in Rusts that are useful in very specific situations:
+
+* Unsafe Rust: how to opt out of some of Rust’s guarantees and take responsibility for manually upholding those guarantees
+* Advanced traits: associated types, default type parameters, fully qualified syntax, supertraits, and the newtype pattern in relation to traits
+* Advanced types: more about the newtype pattern, type aliases, the never type, and dynamically sized types
+* Advanced functions and closures: function pointers and returning closures
+Macros: ways to define code that defines more code at compile time
+
+### Unsafe Rust
+Unsafe Rust exists because, by nature, static analysis is conservative. Although the code might be okay, if the Rust compiler doesn’t have enough information to be confident, it will reject the code. In these cases, you can use unsafe code to tell the compiler, [green]#*“Trust me, I know what I’m doing.”*# (The downside is that you use it at your own risk).
+
+Another reason Rust has an unsafe alter ego is that the **underlying computer hardware is inherently unsafe**. If Rust didn’t let you do unsafe operations, you couldn’t do certain tasks. Rust needs to allow you to do low-level systems programming, such as directly interacting with the operating system or even writing your own operating system.
+
+*Unsafe superpower*
+
+To switch to unsafe Rust, use the [blue]#unsafe# keyword and then start a new block that holds the unsafe code. You can take five actions in unsafe Rust, called unsafe superpowers:
+
+* Dereference a raw pointer
+* Call an unsafe function or method
+* Access or modify a mutable static variable
+* Implement an unsafe trait
+* Access fields of unions
+
+Unsafe doesn't turn off the borrow checker or disable any other safety check apart from these 5 actions. In addition, unsafe does not mean the code inside the block is necessarily dangerous or that it will definitely have memory safety problems: the intent is that as the programmer, you’ll ensure the code inside an unsafe block will access memory in a valid way. However, mistakes can still happen but they will be within unsafe blocks.
+
+*Dereferencing a raw pointer*
+
+Unsafe Rust has two new types called raw pointers that are similar to references. As with references, raw pointers can be immutable or mutable and are written as *const T and *mut T, respectively. raw ponters: 
+
+* Are allowed to ignore the borrowing rules by having both immutable and mutable pointers or multiple mutable pointers to the same location
+* Aren’t guaranteed to point to valid memory
+* Are allowed to be null
+* Don’t implement any automatic cleanup
+
+```
+fn main() {
+    let address = 0x012345usize;  //raw ,memory location(NOT RECOMMENDED)
+// we can create raw pointers in safe code but we cant dereference outside unsafe.
+    let r1 = &num as *const i32;        //immutable raw pointer
+    let r2 = &mut num as *mut i32;      //mutable raw pointer
+}
+
+```
+
+*Calling unsafe functions  or methods*
+
+```
+unsafe fn dangerous() {}
+
+unsafe {
+    dangerous();
+}
+```
+
+*Using extern function to call external code*
+
+Rust code might need to interact with code written in another language. Rust has a keyword, extern, that facilitates the creation and use of a Foreign Function Interface (FFI).
+```
+// integration with C language
+extern "C" {
+    fn abs(input: i32) -> i32;
+}
+
+fn main() {
+    unsafe {
+        println!("Absolute value of -3 according to C: {}", abs(-3));
+    }
+}
+```
+
