@@ -1,5 +1,5 @@
 # Rust Programming Language
-Author Name
+Eduardo Tapia
 :doctype: article
 :encoding: utf-8
 :lang: en
