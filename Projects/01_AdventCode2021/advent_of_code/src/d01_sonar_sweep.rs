@@ -1,27 +1,44 @@
-// count the number of times a depth measurement increases from previous measurement.
+// count the number of times depth measurement increases from previous measurement.
 
 pub mod sonar_sweep{
     use std::fs::File;
+    use std::i32::{MAX, MIN};
     use std::io::{prelude::*, BufReader};
 
-    pub fn depth_increase() {
+    pub fn depth_increase() -> Result<(), &'static str> {
         let mut count_increased_depth = 0;
-        let mut actual_line= String::new();
-        let file = File::open("01_sweep_report.txt").expect("rip");
-        let mut reader = BufReader::new(file);
+        let mut previous_line:i32 = MAX;    // avoids wrongly increasing count on first value
         
-        reader.read_line(&mut actual_line).unwrap();
-        let mut actual_line: i32 = actual_line.trim_end().parse().unwrap();
+        // open file and attach a buffer
+        let file = match File::open("src/input/01_sweep_report.txt") {
+            Ok(file) => file,
+            _ => return Err("file not found"),
+        };
+        let reader = BufReader::new(file);
+        
+        // get Strings from file and parse it to integers for comparison
         for line in reader.lines(){
-            let line = line.unwrap();
-            let mut next_line: i32 = line.trim_end().parse().unwrap();
-            if actual_line < next_line {
+            let next_line =  match line.unwrap().trim_end().parse::<i32>() {
+                Ok(line) => line,
+                _ => {
+                    println!("type is not integer, skiping line");
+                    MIN
+                },
+            };
+            if next_line == MIN {   //skip this value
+                continue;
+            }
+            if previous_line < next_line { // increased depth
                 count_increased_depth += 1;
             }
-            actual_line = next_line; 
-         }
-         println!("the deepth increased: {} times", count_increased_depth);
+            previous_line = next_line;
+        }
+
+        println!("the deepth increased: {} times", count_increased_depth);
+        Ok(())
     }
+
+
 
 }
 
