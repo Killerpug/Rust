@@ -111,7 +111,7 @@ Char is [red]#always 4 bytes# in size that uses [blue]#codepoint<-->UTF-8# (enco
 The following example encodes “é” by using 2 bytes(right align), leftover bits are filled with 0 (called padding).  
 
 .Encoding “é” in UTF-8 (? Represents a free bit for data)
-image::images/1_Encoding.png[]
+image::1_Encoding.png[]
 
 
 #### Integer type
