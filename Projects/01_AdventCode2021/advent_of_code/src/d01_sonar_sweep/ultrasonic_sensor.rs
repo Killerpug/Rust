@@ -55,7 +55,7 @@ pub fn depth_descent_slope_functional() -> Result<i32, Box<dyn Error + 'static>>
         let next_line = match line.trim_end().parse::<i32>() {
             Ok(line) => line,
             _ => {
-                println!("type is not integer, skiping line");
+                println!("type is not integer, skipping line");
                 continue;
             }
         };
