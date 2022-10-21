@@ -24,8 +24,8 @@ impl SubmarinePosition {
     }
 }
 
-pub fn calculate_position() -> Result<SubmarinePosition, Box<dyn Error + 'static>> {
-    let mut submarine = SubmarinePosition::new();
+pub fn calculate_position(submarine: &mut SubmarinePosition) -> Result<&mut SubmarinePosition, Box<dyn Error + 'static>> {
+
     let reader = fs::read_to_string("src/d02_direction_control/input/submarine_directions.txt")?;
     for line in reader.lines() {
         let mut current_line = line.split(" ");

@@ -42,7 +42,8 @@ pub fn day_01() {
 }
 
 pub fn day_02() {
-    match pilot_control::calculate_position() {
+    let mut submarine = pilot_control::SubmarinePosition::new();
+    match pilot_control::calculate_position(&mut submarine) {
         Ok(submarine_pos) => {
             println!(
                 "depth: {}, heading: {}, multiplied {}",
