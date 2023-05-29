@@ -23,8 +23,11 @@ fn main() {
     modem_pwrkey.set_low().unwrap();
     modem_flight.set_high().unwrap();
 
-    let tx = peripherals.pins.gpio1;
-    let rx = peripherals.pins.gpio2;
+    // Connect to these GPIOs
+    // Use UART converter
+    // Disable hardware flow control when using minicom: minicom -b 115200 /dev/ttyUSB0
+    let tx = peripherals.pins.gpio14;
+    let rx = peripherals.pins.gpio15;
 
     let config = config::Config::default().baudrate(Hertz(115_200));
     let mut uart = UartDriver::new(
@@ -43,7 +46,7 @@ fn main() {
         led.set_low().unwrap();        
         FreeRtos::delay_ms(1000);
         led.set_high().unwrap();
-        uart.write(&[0xaa]).unwrap();
+        uart.write(&[0x41]).unwrap();
 
         let mut buf = [0_u8; 1];
         uart.read(&mut buf, BLOCK).unwrap();
