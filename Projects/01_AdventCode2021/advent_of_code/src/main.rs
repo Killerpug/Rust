@@ -1,9 +1,11 @@
 use std::io;
 use std::process::exit;
 
+// check the other 2 possible ways of creating module tree
+// https://stackoverflow.com/questions/69140355/is-it-possible-to-avoid-using-mod-rs-files
 mod d01_sonar_sweep;
 mod d02_direction_control;
-
+mod d03_binary_diagnostic;
 fn main() {
     loop {
         let mut day = String::new();
@@ -28,6 +30,7 @@ pub fn run_day(num: i32) {
         0 => exit(1),
         1 => day_01(),
         2 => day_02(),
+        3 => day_03(),
         _ => println!("program not available"),
     }
 }
@@ -50,4 +53,8 @@ pub fn day_02() {
         }
         Err(e) => println!("error {}", e),
     }
+}
+
+pub fn day_03(){
+    d03_binary_diagnostic::calculate_diagnostic_counters();
 }

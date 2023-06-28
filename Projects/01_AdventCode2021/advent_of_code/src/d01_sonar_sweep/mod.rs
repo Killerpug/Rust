@@ -189,7 +189,10 @@ mod tests {
             Err(e) => println!("not okay: {:?}", e),
         }
         let duration = start.elapsed();
-        println!("Time elapsed in expensive_function() is: {:?}", duration);
+        println!(
+            "Time elapsed in expensive_function() using iterators and BufReader:  {:?}",
+            duration
+        );
 
         let start = Instant::now();
         match depth_descent_slope_functional() {
@@ -197,7 +200,10 @@ mod tests {
             Err(e) => println!("not okay: {:?}", e),
         }
         let duration = start.elapsed();
-        println!("Time elapsed in expensive_function() is: {:?}", duration);
+        println!(
+            "Time elapsed in expensive_function() using iterators and filesystem: {:?}",
+            duration
+        );
 
         let start = Instant::now();
         match depth_descent_slope_functional2() {
@@ -205,14 +211,9 @@ mod tests {
             Err(e) => println!("not okay: {:?}", e),
         }
         let duration = start.elapsed();
-        println!("Time elapsed in expensive_function() is: {:?}", duration);
-
-        let start = Instant::now();
-        match depth_descent_slope_slide_filter() {
-            Ok(value) => println!("sonar slope: {:?}", value),
-            Err(e) => println!("not okay: {:?}", e),
-        }
-        let duration = start.elapsed();
-        println!("Time elapsed in expensive_function() is: {:?}", duration);
+        println!(
+            "Time elapsed in expensive_function() using Iterators and closures:   {:?}",
+            duration
+        );
     }
 }
