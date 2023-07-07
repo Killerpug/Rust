@@ -6,6 +6,7 @@ use std::process::exit;
 mod d01_sonar_sweep;
 mod d02_direction_control;
 mod d03_binary_diagnostic;
+mod d04_linked_list;
 fn main() {
     loop {
         let mut day = String::new();
@@ -31,6 +32,7 @@ pub fn run_day(num: i32) {
         1 => day_01(),
         2 => day_02(),
         3 => day_03(),
+        4 => day_04(),
         _ => println!("program not available"),
     }
 }
@@ -57,4 +59,8 @@ pub fn day_02() {
 
 pub fn day_03(){
     d03_binary_diagnostic::calculate_diagnostic_counters();
+}
+
+pub fn day_04(){
+    d04_linked_list::linked();
 }

@@ -5,3 +5,12 @@ version = 3
 [[package]]
 name = "advent_of_code"
 version = "0.1.0"
+dependencies = [
+ "list",
+]
+
+[[package]]
+name = "list"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "522d1a07016c162161bda4e44a87471282655e828ee613403529a9023e431408"
