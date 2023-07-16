@@ -7,6 +7,7 @@ mod d01_sonar_sweep;
 mod d02_direction_control;
 mod d03_binary_diagnostic;
 mod d04_linked_list;
+mod d05_traits_generics;
 fn main() {
     loop {
         let mut day = String::new();
@@ -33,6 +34,7 @@ pub fn run_day(num: i32) {
         2 => day_02(),
         3 => day_03(),
         4 => day_04(),
+        5 => day_05(),
         _ => println!("program not available"),
     }
 }
@@ -63,4 +65,7 @@ pub fn day_03(){
 
 pub fn day_04(){
     d04_linked_list::linked();
+}
+pub fn day_05(){
+    d05_traits_generics::figures();
 }
